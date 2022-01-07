@@ -1,0 +1,75 @@
+version: "3.7"
+
+services:
+  # devはフロントエンドのプロジェクト
+  # dev:
+  #   image: owl-dev:latest
+  #   build:
+  #     context: .
+  #     dockerfile: dev.Dockerfile
+  #   container_name: owl-dev
+  #   ports:
+  #     - "30001:30001"
+  #   volumes:
+  #     - owl-node_modules:/app/node_modules
+  #     - .:/app/
+  #   stdin_open: true
+  #   tty: true
+  #   depends_on:
+  #     - db
+  #   networks:
+  #     - owl-project-network
+  #   env_file:
+  #     - .env.dev
+
+  dev:
+    image: aws_python_sample
+    build:
+      context: ./owl-project
+      dockerfile: Dockerfile
+    volumes:
+      - ./owl-project:/usr/src/app
+    command: python hello_world/MoviesItemOps02.py
+    tty: true
+    networks:
+      - owl-project-network
+    environment:
+      - AWS_DEFAULT_REGION=ap-northeast-1
+      - AWS_ACCESS_KEY_ID=local
+      - AWS_SECRET_ACCESS_KEY=local
+
+  # docker-compose run --rm dev
+  # docker-compose run --rm dev /bin/bash
+
+  db:
+    image: amazon/dynamodb-local
+    container_name: owl-db
+    ports:
+      - 30002:8000
+    command: -jar DynamoDBLocal.jar -dbPath /db -sharedDb
+    volumes:
+      - ./db:/db
+    networks:
+      - owl-project-network
+
+  dynamodb-admin:
+    image: amazon/dynamodb-admin-local
+    container_name: dynamodb-local-admin-by-myself
+    tty: true
+    image: aaronshaf/dynamodb-admin:latest
+    ports:
+      - "5981:8001"
+    environment:
+      - DYNAMO_ENDPOINT=db:8000
+      - AWS_REGION=eu-west-1
+      - AWS_ACCESS_KEY_ID=local
+      - AWS_SECRET_ACCESS_KEY=local
+    networks:
+      - owl-project-network
+
+volumes:
+  owl-node_modules:
+
+networks:
+  owl-project-network:
+    driver: bridge
