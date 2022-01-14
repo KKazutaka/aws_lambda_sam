@@ -28,8 +28,13 @@ def lambda_handler(event, context):
     response = table.query(
         KeyConditionExpression=Key('year').eq(1994)
     )
-    print(response)
-    response = {"hello": "world"}
+    # print(response)
+    if response:
+        print("responseの中身とは")
+        print("                ")
+        print(response)
+        print("              ここまで ")
+        response = {"hello": "world"}
     return {
         "statusCode": 200,
         "headers": {
